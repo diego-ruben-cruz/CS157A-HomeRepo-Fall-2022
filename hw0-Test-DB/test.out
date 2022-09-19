@@ -1,0 +1,180 @@
+connect to sample
+
+   Database Connection Information
+
+ Database server        = DB2/LINUXX8664 11.5.7.0
+ SQL authorization ID   = DB2INST1
+ Local database alias   = SAMPLE
+
+
+select count(*) from department
+
+1          
+-----------
+         14
+
+  1 record(s) selected.
+
+
+select count(*) from employee
+
+1          
+-----------
+         42
+
+  1 record(s) selected.
+
+
+select empno from employee
+
+EMPNO 
+------
+000010
+000020
+000030
+000050
+000060
+000070
+000090
+000100
+000110
+000120
+000130
+000140
+000150
+000160
+000170
+000180
+000190
+000200
+000210
+000220
+000230
+000240
+000250
+000260
+000270
+000280
+000290
+000300
+000310
+000320
+000330
+000340
+200010
+200120
+200140
+200170
+200220
+200240
+200280
+200310
+200330
+200340
+
+  42 record(s) selected.
+
+
+select empno from employee order by empno desc
+
+EMPNO 
+------
+200340
+200330
+200310
+200280
+200240
+200220
+200170
+200140
+200120
+200010
+000340
+000330
+000320
+000310
+000300
+000290
+000280
+000270
+000260
+000250
+000240
+000230
+000220
+000210
+000200
+000190
+000180
+000170
+000160
+000150
+000140
+000130
+000120
+000110
+000100
+000090
+000070
+000060
+000050
+000030
+000020
+000010
+
+  42 record(s) selected.
+
+
+select empno,lastname,firstnme from employee order by lastname,firstnme
+
+EMPNO  LASTNAME        FIRSTNME    
+------ --------------- ------------
+000150 ADAMSON         BRUCE       
+200340 ALONZO          ROY         
+000200 BROWN           DAVID       
+000050 GEYER           JOHN        
+000340 GOUNOT          JASON       
+000010 HAAS            CHRISTINE   
+200010 HEMMINGER       DIAN        
+000090 HENDERSON       EILEEN      
+000230 JEFFERSON       JAMES       
+200220 JOHN            REBA        
+000260 JOHNSON         SYBIL       
+000210 JONES           WILLIAM     
+000030 KWAN            SALLY       
+000330 LEE             WING        
+000110 LUCCHESSI       VINCENZO    
+000220 LUTZ            JENNIFER    
+000240 MARINO          SALVATORE   
+000320 MEHTA           RAMLAL      
+200240 MONTEVERDE      ROBERT      
+200140 NATZ            KIM         
+000140 NICHOLLS        HEATHER     
+000120 O'CONNELL       SEAN        
+200120 ORLANDO         GREG        
+000290 PARKER          JOHN        
+000270 PEREZ           MARIA       
+000160 PIANKA          ELIZABETH   
+000070 PULASKI         EVA         
+000130 QUINTANA        DELORES     
+000280 SCHNEIDER       ETHEL       
+200280 SCHWARTZ        EILEEN      
+000180 SCOUTTEN        MARILYN     
+000310 SETRIGHT        MAUDE       
+000250 SMITH           DANIEL      
+000300 SMITH           PHILIP      
+000100 SPENSER         THEODORE    
+200310 SPRINGER        MICHELLE    
+000060 STERN           IRVING      
+000020 THOMPSON        MICHAEL     
+000190 WALKER          JAMES       
+200330 WONG            HELENA      
+200170 YAMAMOTO        KIYOSHI     
+000170 YOSHIMURA       MASATOSHI   
+
+  42 record(s) selected.
+
+
+terminate
+DB20000I  The TERMINATE command completed successfully.
+
