@@ -5,3 +5,6 @@ docker exec -ti mydb2 bash -c "su - db2inst1"
 
 Connect to sample database
 db2 connect to sample
+
+make sql query
+db2 "[insert SQL Query here]"
