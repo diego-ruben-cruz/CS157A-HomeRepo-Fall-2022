@@ -1,5 +1,8 @@
 Process is Container>Sample_Database
 
+Init db2
+db2start
+
 Initialize Container
 docker exec -ti mydb2 bash -c "su - db2inst1"
 

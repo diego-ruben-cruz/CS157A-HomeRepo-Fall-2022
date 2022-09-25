@@ -19,7 +19,7 @@ SELECT ID as ID, NAME as Name, SALARY + COMM AS Total_Compensation FROM STAFF WH
 SELECT ID as ID, NAME as Name, SALARY + COMM AS Total_Compensation FROM STAFF WHERE COMM IS NOT NULL ORDER BY Total_Compensation DESC;
 
 -- Find the 5 lowest paid non-commissioned employees based on their salary in lowest order first.  (Output columns: ID, Name, Salary)
-SELECT ID as ID, NAME AS Name, SALARY AS Salary FROM STAFF ORDER BY SALARY ASC limit 0,5;
+SELECT ID as ID, NAME AS Name, SALARY AS Salary FROM STAFF WHERE STAFF.COMM IS NULL ORDER BY SALARY ASC limit 0,5;
 
 -- Find all the employees who worked in the department named Mountain, Plains, or New England in ascending order of the deptname and then name  (Output columns: Deptname, Location, Name). (Hint – JOIN)
 
@@ -29,11 +29,15 @@ SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FR
 -- Using SQL IN keyword
 SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FROM STAFF INNER JOIN ORG ON ORG.DEPTNUMB = STAFF.DEPT WHERE ORG.DEPTNAME IN ('Mountain','Plains','New England') ORDER BY ORG.DEPTNAME, STAFF.NAME ASC;
 
--- Using JOIN
+-- Using statements on JOIN
 SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FROM STAFF INNER JOIN ORG ON ORG.DEPTNUMB = STAFF.DEPT AND (ORG.DEPTNAME = 'Mountain' OR ORG.DEPTNAME = 'Plains' OR ORG.DEPTNAME = 'New England') ORDER BY ORG.DEPTNAME, STAFF.NAME ASC;
 
+-- Using statements on WHERE
+SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FROM STAFF INNER JOIN ORG ON ORG.DEPTNUMB = STAFF.DEPT WHERE ORG.DEPTNAME = 'Mountain' OR ORG.DEPTNAME = 'Plains' OR ORG.DEPTNAME = 'New England' ORDER BY ORG.DEPTNAME, STAFF.NAME ASC;
+
+
 -- There are many job roles among the 35 employees.  Find the number of people in each job role (at least 1) order by highest to lowest.  Your SQL statement must produce the output as the one shown below.  (Hint - GROUP BY)
--- Insert query here
+SELECT JOB, COUNT(JOB) AS Employee_Count FROM STAFF GROUP BY JOB ORDER BY COUNT(JOB) DESC;
 
 -- There are several divisions in the company.  Find the number of employees in each division (at least 1) order from lowest to highest.  Your SQL statement must produce the output as the one shown below.  (Hint – JOIN & GROUP BY)
--- Insert query here
+SELECT DIVISION, COUNT(DIVISION) AS Employee_Count FROM STAFF JOIN ORG ON ORG.DEPTNUMB = STAFF.DEPT GROUP BY DIVISION ORDER BY COUNT(DIVISION) ASC;
