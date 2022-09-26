@@ -23,9 +23,6 @@ SELECT ID as ID, NAME AS Name, SALARY AS Salary FROM STAFF WHERE STAFF.COMM IS N
 
 -- Find all the employees who worked in the department named Mountain, Plains, or New England in ascending order of the deptname and then name  (Output columns: Deptname, Location, Name). (Hint – JOIN)
 
--- Works for all department names
-SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FROM STAFF INNER JOIN ORG ON ORG.DEPTNUMB = STAFF.DEPT ORDER BY ORG.DEPTNAME, STAFF.NAME ASC;
-
 -- Using SQL IN keyword
 SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FROM STAFF INNER JOIN ORG ON ORG.DEPTNUMB = STAFF.DEPT WHERE ORG.DEPTNAME IN ('Mountain','Plains','New England') ORDER BY ORG.DEPTNAME, STAFF.NAME ASC;
 
@@ -34,7 +31,6 @@ SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FR
 
 -- Using statements on WHERE
 SELECT ORG.DEPTNAME as Deptname, ORG.LOCATION as Location, STAFF.NAME as Name FROM STAFF INNER JOIN ORG ON ORG.DEPTNUMB = STAFF.DEPT WHERE ORG.DEPTNAME = 'Mountain' OR ORG.DEPTNAME = 'Plains' OR ORG.DEPTNAME = 'New England' ORDER BY ORG.DEPTNAME, STAFF.NAME ASC;
-
 
 -- There are many job roles among the 35 employees.  Find the number of people in each job role (at least 1) order by highest to lowest.  Your SQL statement must produce the output as the one shown below.  (Hint - GROUP BY)
 SELECT JOB, COUNT(JOB) AS Employee_Count FROM STAFF GROUP BY JOB ORDER BY COUNT(JOB) DESC;
