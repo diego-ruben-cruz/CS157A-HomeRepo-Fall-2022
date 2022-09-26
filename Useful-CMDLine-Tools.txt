@@ -1,6 +1,6 @@
 Process is Container>Sample_Database
 
-Init db2
+Initialize db2
 db2start
 
 Initialize Container
