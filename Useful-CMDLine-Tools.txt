@@ -6,6 +6,17 @@ db2start
 Initialize Container
 docker exec -ti mydb2 bash -c "su - db2inst1"
 
+List databases
+db2 list db directory
+db2 list database directory
+
+Create new database
+db2 create db [insert_db_name_here]
+db2 create database [insert_db_name_here]
+
+Connect to database
+db2 connect to [insert_db_name_here]
+
 Connect to sample database
 db2 connect to sample
 

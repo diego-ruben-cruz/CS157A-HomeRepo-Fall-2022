@@ -22,33 +22,97 @@ connect to cs157a^
 
 --Creating student table
 CREATE TABLE hw3.student (
-       student_id char (6),
-       first varchar (15),
-       last varchar (15),
-       gender char (1)
+       student_id char (6) 
+	   PRIMARY KEY,
+	   
+       first varchar (15) 
+	   ADD CONSTRAINT check_not_null
+	   CHECK NOT NULL,
+	   
+       last varchar (15) 
+	   ADD CONSTRAINT check_not_null
+	   CHECK NOT NULL,
+	   
+       gender char (1) 
+	   ADD CONSTRAINT must_be_specific_chars
+	   CHECK (gender LIKE "[MFO]")
+		/*
+		"[MFO]" uses regular expressions to check that gender input
+		matches 'M', 'F', or 'O'
+		 */
 )^
 
 --Creating class table
 CREATE TABLE hw3.class (
-       class_id char (6),
-       name varchar (20),
+       class_id char (6) PRIMARY KEY,
+	   
+       name varchar (20) 
+	   ADD CONSTRAINT check_not_null
+	   CHECK NOT NULL,
+	   
        desc varchar (20)
+	   ADD CONSTRAINT check_not_null
+	   CHECK NOT NULL
+	   
 )^
 
 --Creating pre-req table
 CREATE TABLE hw3.class_prereq (
-       class_id char (6),
-       prereq_id char (6),
-       req_grade char (1)
+       class_id char (6) 
+	   REFERENCES hw3.class(class_id) 
+	   ON DELETE CASCADE,
+	   
+       prereq_id char (6) 
+	   REFERENCES hw3.class(class_id) 
+	   ON DELETE CASCADE 
+	   ADD CONSTRAINT check_not_listing_self_as_prereq 
+	   CHECK (prereq_id NOT LIKE hw3.class_prereq(class_id)),
+	   /* 
+	   See about whether references properly checks if 
+	   class_prereq.prereq_id is equal to itself
+	   */
+	   
+		req_grade char (1) 
+		ADD CONSTRAINT check_not_null
+		CHECK NOT NULL
+		ADD CONSTRAINT above_passing_grade 
+		CHECK ( req_grade LIKE "[ABC]")
+		/*
+		"[ABC]" uses regular expressions to check that gender 
+		input matches 'A', 'B', or 'C'
+		*/
 )^
 
 --Creating schedule table
 CREATE TABLE hw3.schedule (
-       student_id char (6),
-       class_id char (6),
-       semester int,
-       year int,
-       grade char (1)
+       student_id char (6) 
+	   REFERENCES hw3.student(student_id) 
+	   ON DELETE CASCADE,
+	   
+       class_id char (6) 
+	   REFERENCES hw3.class(class_id) 
+	   ON DELETE CASCADE,
+	   
+       semester int 
+	   ADD CONSTRAINT check_not_null
+	   CHECK NOT NULL
+	   ADD CONSTRAINT must_be_specific_int
+	   CHECK (semester IN [1,2,3] ),
+	   
+       year int ADD CONSTRAINT must_be_positive_int
+	   CHECK (year > 0 AND year <= DATEPART(year, GETDATE()) AS 'Year'),
+	   /*
+	   investigate how to force year input to be less than
+	   current year on the machine.
+	   */
+	   
+       grade char (1) ADD CONSTRAINT specific_grade_chars
+	   CHECK (grade LIKE "[ABCDFIW]")
+		/*
+		"[ABCDFIW]" uses regular expressions to check that 
+		grade input matches 'A', 'B', 'C', 'D', 'E', 'F', 'I'
+		or 'W'
+		*/
 )^
 
 --Creating trigger for pre-req
