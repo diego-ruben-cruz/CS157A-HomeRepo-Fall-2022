@@ -14,6 +14,8 @@
 -- db2 -td"^" -f 2022-10-05-cs157a-hw3-drop.sql
 /* 
 	-td"^" denotes that "^" character is considered equivalent to ";"
+	for statements outside of triggers
+	Otherwise use db2 -tvf file_name_here.sql
 */
 
 connect to cs157a^
