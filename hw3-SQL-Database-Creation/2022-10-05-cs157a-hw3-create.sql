@@ -99,14 +99,19 @@ CREATE TABLE hw3.schedule (
 	   ADD CONSTRAINT must_be_specific_int
 	   CHECK (semester IN [1,2,3] ),
 	   
-       year int ADD CONSTRAINT must_be_positive_int
-	   CHECK (year > 0 AND year <= DATEPART(year, GETDATE()) AS 'Year'),
-	   /*
+       year int 
+	   ADD CONSTRAINT must_be_positive_int
+	   CHECK (year > 0)
+	  
+	   ADD CONSTRAINT less_than_current_year
+	   CHECK (year <= (DATEPART(year, GETDATE()) AS 'Year')),
+	    /*
 	   investigate how to force year input to be less than
 	   current year on the machine.
 	   */
 	   
-       grade char (1) ADD CONSTRAINT specific_grade_chars
+       grade char (1) 
+	   ADD CONSTRAINT specific_grade_chars
 	   CHECK (grade LIKE "[ABCDFIW]")
 		/*
 		"[ABCDFIW]" uses regular expressions to check that 
