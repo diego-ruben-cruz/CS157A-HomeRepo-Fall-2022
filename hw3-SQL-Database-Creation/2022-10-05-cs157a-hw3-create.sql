@@ -66,7 +66,7 @@ CREATE TABLE hw3.class_prereq (
 	   REFERENCES hw3.class(class_id) 
 	   ON DELETE CASCADE 
 	   ADD CONSTRAINT check_not_listing_self_as_prereq 
-	   CHECK (prereq_id NOT LIKE hw3.class_prereq(class_id)),
+	   CHECK (prereq_id <> class_id),
 	   /* 
 	   See about whether references properly checks if 
 	   class_prereq.prereq_id is equal to itself
