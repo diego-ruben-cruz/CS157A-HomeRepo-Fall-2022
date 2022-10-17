@@ -121,22 +121,57 @@ CREATE TABLE hw3.schedule (
 )^
 
 --Creating trigger for pre-req
-CREATE TRIGGER hw3.classcheck
+CREATE TRIGGER hw3.classcheck 
+	-- Basic trigger naming
 NO CASCADE BEFORE INSERT ON hw3.schedule
-REFERENCING NEW AS newrow  
+	/* 
+	Trigger occurs on schedule table
+	
+	NO CASCADE BEFORE INSERT clarifies that the trigger will activate
+	on attempted insertion into the database.
+	
+	The triggered action of the trigger will not cause other triggers to
+	be activated.
+	*/
+REFERENCING NEW AS newrow
+	-- References the new row to be inserted as newrow
+	
 FOR EACH ROW MODE DB2SQL
+	-- Specifies that trigger action will be done once for each row of
+	-- subject table that is affected by triggering SQL operation.
+	
 WHEN ( 0 < (SELECT COUNT(*)
               FROM hw3.class_prereq 
-              WHERE hw3.class_prereq.class_id = newrow.class_id ) ) 
+              WHERE hw3.class_prereq.class_id = newrow.class_id ) )
+	/*
+	This specifies a search condition where if any row inserted
+	contains a classID that has any prerequisites, it will do the trigger
+	operations below.
+	*/			  
 BEGIN ATOMIC
-       DECLARE num_prereq int;
-       DECLARE prereq_pass int;
+		-- Declares new ints to temporarily use during trigger ops.
+		DECLARE num_prereq int;
+		DECLARE prereq_pass int;
 
-       SET num_prereq = (SELECT COUNT(*)
+		-- Updates num_prereq variable to count all prerequisites 
+		SET num_prereq = (SELECT COUNT(*)
                             FROM hw3.class_prereq 
                             WHERE hw3.class_prereq.class_id = newrow.class_id);
+		
+		-- Updates prereq_pass to count all prerequisites that are passed.
+		SET prereq_pass = ( SELECT COUNT(*)
+							FROM hw3.schedule INNER JOIN hw3.class_prereq
+							ON hw3.schedule.class_id = hw3.class_prereq.class_id
+							WHERE hw3.class_prereq.class_id = newrow.class_id AND grade >= req_grade
+							-- stuck on this line where I find bounds for
+							-- satisfactory grade according to defined 
+							-- passing grade in hw3.class_prereq
+							-- attempting to use >= instead of regex.
+							
+		
 
-       IF ( num_prereq > 0 ) 
-       THEN      SIGNAL SQLSTATE '88888' ( 'Missing Pre-req' );
-       END IF;
+		IF ( num_prereq - prereq_pass > 0 ) 
+		THEN      SIGNAL SQLSTATE '88888' ( 'Missing Pre-req' );
+		END IF;
+		
 END^
