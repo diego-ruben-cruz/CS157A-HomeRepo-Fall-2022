@@ -12,6 +12,17 @@
 -- Useful db2 command to run this file:
 -- db2 -tvf 2022-10-05-cs157a-hw3.sql
 
+-- to run simple
+-- db2 -td";" -f 2022-10-05-cs157a-hw3.sql
+
+-- to run play by play
+-- db2 -vtd";" -f 2022-10-05-cs157a-hw3.sql
+    -- td"^" denotes that "^" character is considered equivalent to ";"
+    -- for statements outside of triggers
+    -- For normal files that use ";" delimiter, 
+    -- use db2 -tvf file_name_here.sql
+
+
 -- Data insertion operation.
 connect to cs157a;
 DELETE FROM hw3.student;

@@ -8,11 +8,15 @@
 -- 	Homework: HW3
 -- 	Date: 05 October 2022
 
--- Useful db2 command to run this file:
--- db2 -td"^" -f hw3-drop.sql
-	-- 	-td"^" denotes that "^" character is considered equivalent to ";"
-	-- 	for statements outside of triggers
-	-- 	Otherwise use db2 -tvf file_name_here.sql
+-- to run simple
+-- db2 -td"^" -f 2022-10-05-cs157a-hw3-drop.sql
+
+-- to run play by play
+-- db2 -vtd"^" -f 2022-10-05-cs157a-hw3-drop.sql
+    -- td"^" denotes that "^" character is considered equivalent to ";"
+    -- for statements outside of triggers
+    -- For normal files that use ";" delimiter, 
+    -- use db2 -tvf file_name_here.sql
 
 connect to cs157a^
 
