@@ -1,15 +1,13 @@
-/*
-	Description: SQL File for HW3. Meant to test triggers and 
-	constraints with insertion and selection statements.
+-- Description: SQL File for HW3. Meant to test triggers and 
+-- constraints with insertion and selection statements.
 
-	Name: Diego Cruz
-	SID: 013540384
+-- Name: Diego Cruz
+-- SID: 013540384
 
-	Course: CS 157A
-	Section: 02
-	Homework: HW3
-	Date: 05 October 2022
-*/
+-- Course: CS 157A
+-- Section: 02
+-- Homework: HW3
+-- Date: 05 October 2022
 
 -- Useful db2 command to run this file:
 -- db2 -tvf 2022-10-05-cs157a-hw3.sql

@@ -445,3 +445,4 @@ hw0-Test-DB/data/db2inst1/NODE0000/SQL00003/MEMBER0000/SQLWLMADMDAT
 hw0-Test-DB/data/db2inst1/NODE0000/SQL00003/SQLDBCONF
 *.221014
 *.lock
+hw3-SQL-Database-Creation/test.out.final

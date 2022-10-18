@@ -1,5 +1,8 @@
 Process is Container>Sample_Database
 
+db2inst1 password for terminal
+db2inst1_Section_7
+
 Initialize db2
 db2start
 
