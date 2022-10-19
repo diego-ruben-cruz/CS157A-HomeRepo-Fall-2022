@@ -25,6 +25,12 @@ db2 connect to sample
 Make sql query
 db2 "[insert SQL Query here]"
 
+Run sql file simple output
+db2 -td"{insert_delim_here}" -f {filename_here}.sql
+
+Run sql file play by play output
+db2 -vtd"{insert_delim_here}" -f {filename_here}.sql
+
 End Session
 db2 terminate
 
