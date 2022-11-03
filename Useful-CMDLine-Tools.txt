@@ -1,13 +1,17 @@
-Process is Container>Sample_Database
+Process is Container>Database
 
 db2inst1 password for terminal
-db2inst1_Section_7
+db2inst1_Section_7 => Deprecated (as far as I'm aware - 3 Nov 2022)
+db2Section7
 
 Initialize db2
 db2start
 
 Initialize Container
 docker exec -ti mydb2 bash -c "su - db2inst1"
+
+Initialize container as root user
+docker exec -u 0 -it mydb2 bash
 
 List databases
 db2 list db directory

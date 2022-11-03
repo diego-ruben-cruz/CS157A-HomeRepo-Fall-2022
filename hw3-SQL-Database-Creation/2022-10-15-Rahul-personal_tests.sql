@@ -2,6 +2,7 @@
 -- 		db2 -vtd";" -f <File Name
 -- db2 -vtd"^" -f hw3/CREATE.sql
 -- db2 -vtd"^" -f hw3/DROP.sql
+connect to cs157a;
 
 delete from hw3.student;
 delete from hw3.class;
@@ -142,9 +143,164 @@ ECHO ******************************;
 ECHO ;
 
 
+delete from hw3.student;
+delete from hw3.class;
+delete from hw3.class_prereq;
+delete from hw3.schedule;
+
+INSERT INTO hw3.student VALUES
+	('1', 'Tom', 'Riddle', 'M'),
+	('2', 'Aang', 'Nomad', 'M'),
+	('3', 'Double', 'Trouble', 'O'),
+	('4', 'Toph', 'Beifong', 'F'),
+	('5', 'Zuko', 'Iroh', 'M');
+
+INSERT INTO hw3.class VALUES
+	('1', 'AB101', 'Intro Airbending'),
+	('2', 'AB103', 'Adva Airbending'),
+	('3', 'WT101', 'Intro Waterbending'),
+	('4', 'ER101', 'Intro Earthbending'),
+	('5', 'FI101', 'Intro Firebending'),
+	('6', 'AS101', 'Avatar State'),
+	('7', 'MG101', 'Intro Magic'),
+	('8', 'DG101', 'Intro Disguise'),
+	('9', 'MG102', 'Adva Magic');
+
+INSERT INTO hw3.class_prereq VALUES
+	('2', '1', 'B'),
+	('6', '2', 'C'),
+	('6', '3', 'C'),
+	('6', '4', 'C'),
+	('6', '5', 'C'),
+	('9', '7', 'C');
+
+SELECT * FROM  hw3.student;
+SELECT * FROM hw3.class;
+SELECT * FROM hw3.class_prereq;
+
 ECHO ;
 ECHO ******************************;
-ECHO Checking Foriegn for schedule on student and class;
+ECHO Checking schedule Table;
 ECHO - - - - - - - - - - - - - - - ;
 ECHO ;
 
+ECHO Simple valid input tests;
+
+ECHO;
+ECHO Valid Grade;
+
+ECHO hw3.schedule;
+INSERT INTO hw3.schedule VALUES
+	('1', '7', 1, 2019, 'A'),
+	('2', '2', 1, 2019, 'B'),
+	('2', '3', 1, 2019, 'C'),
+	('2', '4', 1, 2019, 'D'),
+	('2', '5', 1, 2019, 'F'),
+	('3', '8', 1, 2019, 'I'),
+	('4', '4', 1, 2019, 'W'),
+	('5', '5', 1, 2019, NULL);
+
+INSERT INTO hw3.schedule VALUES
+	('1', '7', 1, 2019, 'E');
+
+INSERT INTO hw3.schedule VALUES
+	('1', '7', 1, 2019, 10);
+
+SELECT * FROM hw3.schedule;
+
+
+ECHO ;
+ECHO - - - - - - - - - - - - - - - ;
+ECHO Check(6) 8 entry in hw3.schedule;
+ECHO ******************************;
+ECHO ;
+
+
+ECHO ;
+ECHO ******************************;
+ECHO Checking schedule for valid student_id, class_id, semester;
+ECHO - - - - - - - - - - - - - - - ;
+ECHO ;
+
+INSERT INTO hw3.schedule VALUES
+	('20', '7', 1, 2019, 'A');
+
+INSERT INTO hw3.schedule VALUES
+	('1', '15', 1, 2019, 'A');
+
+INSERT INTO hw3.schedule VALUES
+	('1', '4', 4, 2019, 'A');
+
+SELECT * FROM hw3.schedule;
+	
+ECHO ;
+ECHO - - - - - - - - - - - - - - - ;
+ECHO Check(7) still 8 entry in hw3.schedule;
+ECHO ******************************;
+ECHO ;
+
+ECHO ;
+ECHO ******************************;
+ECHO Checking trigger part;
+ECHO - - - - - - - - - - - - - - - ;
+ECHO ;
+
+DELETE from hw3.schedule;
+
+INSERT INTO hw3.schedule VALUES
+	('1', '7', 3, 2019, 'D'),
+	('4', '4', 2, 2019, 'A'),
+	('2', '1', 2, 2019, 'A'),
+	('2', '5', 1, 2019, 'B');
+
+ECHO Trying to insert without all the pre reqs;
+INSERT INTO hw3.schedule VALUES
+	('2', '6', 1, 2020, 'A');
+
+ECHO Trying to insert with the pre req passed but wrong year;
+INSERT INTO hw3.schedule VALUES
+	('2', '2', 1, 2019, 'A');
+
+ECHO Trying to insert with the pre req failed;
+INSERT INTO hw3.schedule VALUES
+	('1', '9', 1, 2020, NULL);
+
+
+SELECT * FROM hw3.schedule;
+
+ECHO ;
+ECHO - - - - - - - - - - - - - - - ;
+ECHO Check(8) 4 entry in hw3.schedule;
+ECHO ******************************;
+ECHO ;
+
+
+ECHO Trying to insert with all (1) pre req cleared;
+INSERT INTO hw3.schedule VALUES
+	('2', '2', 3, 2020, 'A');
+
+SELECT * FROM hw3.schedule;
+
+ECHO ;
+ECHO - - - - - - - - - - - - - - - ;
+ECHO Check(9) 5 entry in hw3.schedule;
+ECHO ******************************;
+ECHO ;
+
+INSERT INTO hw3.schedule VALUES
+	('2', '3', 3, 2020, 'B'),
+	('2', '4', 3, 2020, 'C'),
+	('2', '5', 3, 2020, 'A');
+
+ECHO Trying to insert with all (4) pre req cleared;
+INSERT INTO hw3.schedule VALUES
+	('2', '6', 3, 2021, 'A');
+
+SELECT * FROM hw3.schedule;
+
+ECHO ;
+ECHO - - - - - - - - - - - - - - - ;
+ECHO Check(10) 9 entry in hw3.schedule;
+ECHO ******************************;
+ECHO ;
+terminate;
