@@ -1,3 +1,4 @@
+package test;
 //
 // sample.java - demonstrate how to connect and fetch data from the Db2 database
 //

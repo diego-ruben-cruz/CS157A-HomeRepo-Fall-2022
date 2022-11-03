@@ -1,3 +1,5 @@
+package src;
+
 
 /**
  * Main entry to program.

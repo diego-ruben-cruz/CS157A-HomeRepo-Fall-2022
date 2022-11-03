@@ -1,40 +1,50 @@
-Process is Container>Database
 
-db2inst1 password for terminal
-db2inst1_Section_7 => Deprecated (as far as I'm aware - 3 Nov 2022)
-db2Section7
+db2
+    Process is Container>Database
 
-Initialize db2
-db2start
+    db2inst1 password for terminal
+    db2inst1_Section_7 => Deprecated (as far as I'm aware - 3 Nov 2022)
+    db2Section7
 
-Initialize Container
-docker exec -ti mydb2 bash -c "su - db2inst1"
+    Initialize db2
+    db2start
 
-Initialize container as root user
-docker exec -u 0 -it mydb2 bash
+    Initialize Container
+    docker exec -ti mydb2 bash -c "su - db2inst1"
 
-List databases
-db2 list db directory
-db2 list database directory
+    Initialize container as root user
+    docker exec -u 0 -it mydb2 bash
 
-Create new database
-db2 create db [insert_db_name_here]
-db2 create database [insert_db_name_here]
+    List databases
+    db2 list db directory
+    db2 list database directory
 
-Connect to database
-db2 connect to [insert_db_name_here]
+    Create new database
+    db2 create db [insert_db_name_here]
+    db2 create database [insert_db_name_here]
 
-Connect to sample database
-db2 connect to sample
+    Connect to database
+    db2 connect to [insert_db_name_here]
 
-Make sql query
-db2 "[insert SQL Query here]"
+    Connect to sample database
+    db2 connect to sample
 
-Run sql file simple output
-db2 -td"{insert_delim_here}" -f {filename_here}.sql
+    Make sql query
+    db2 "[insert SQL Query here]"
 
-Run sql file play by play output
-db2 -vtd"{insert_delim_here}" -f {filename_here}.sql
+    Run sql file simple output
+    db2 -td"{insert_delim_here}" -f {filename_here}.sql
 
-End Session
-db2 terminate
+    Run sql file play by play output
+    db2 -vtd"{insert_delim_here}" -f {filename_here}.sql
+
+    End Session
+    db2 terminate
+
+JDBC
+    Compile java file
+    javac sample.java
+
+    Run java file with JDBC
+    java -cp ";.\db2jcc4.jar" {insert_java_filename_here} {insert_properties_filename_here}.properties
+        Requires further testing
