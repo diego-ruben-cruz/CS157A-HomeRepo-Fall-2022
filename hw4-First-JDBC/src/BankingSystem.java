@@ -69,10 +69,12 @@ public class BankingSystem {
 	public static void newCustomer(String name, String gender, String age, String pin) {
 		System.out.println(":: CREATE NEW CUSTOMER - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			stmt.executeQuery("INSERT INTO p1.customer(name, gender, age, pin) VALUES (" + name + ", " + gender
 					+ ", " + age + ", " + pin + ");");
 			System.out.println(":: CREATE NEW CUSTOMER - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: CREATE NEW CUSTOMER - FAILED");
 			e.printStackTrace();
@@ -89,10 +91,12 @@ public class BankingSystem {
 	public static void openAccount(String id, String type, String amount) {
 		System.out.println(":: OPEN ACCOUNT - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			stmt.executeQuery("INSERT INTO p1.account(id, type, balance) VALUES (" + id + ", " + type
 					+ ", " + amount + ");");
 			System.out.println(":: OPEN ACCOUNT - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: OPEN ACCOUNT - FAILED");
 			e.printStackTrace();
@@ -107,9 +111,11 @@ public class BankingSystem {
 	public static void closeAccount(String accNum) {
 		System.out.println(":: CLOSE ACCOUNT - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			stmt.executeQuery("DELETE FROM p1.account WHERE p1.account.number = " + accNum + ";");
 			System.out.println(":: CLOSE ACCOUNT - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: CLOSE ACCOUNT - FAILED");
 			e.printStackTrace();
@@ -125,10 +131,12 @@ public class BankingSystem {
 	public static void deposit(String accNum, String amount) {
 		System.out.println(":: DEPOSIT - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			stmt.executeQuery(
 					"UPDATE p1.account SET balance = balance + " + amount + " WHERE number = " + accNum + ";");
 			System.out.println(":: DEPOSIT - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: DEPOSIT - FAILED");
 			e.printStackTrace();
@@ -144,10 +152,12 @@ public class BankingSystem {
 	public static void withdraw(String accNum, String amount) {
 		System.out.println(":: WITHDRAW - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			stmt.executeQuery(
 					"UPDATE p1.account SET balance = balance - " + amount + " WHERE number = " + accNum + ";");
 			System.out.println(":: WITHDRAW - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: WITHDRAW - FAILED");
 			e.printStackTrace();
@@ -181,11 +191,13 @@ public class BankingSystem {
 	public static void accountSummary(String cusID) {
 		System.out.println(":: ACCOUNT SUMMARY - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			rs = stmt.executeQuery("SELECT number, balance FROM p1.account WHERE id = " + cusID + ";");
 			stmt = con.createStatement();
 			rs = stmt.executeQuery("SELECT SUM(balance) AS total FROM p1.account WHERE id = " + cusID + ";");
 			System.out.println(":: ACCOUNT SUMMARY - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: ACCOUNT SUMMARY - FAILED");
 			e.printStackTrace();
@@ -199,10 +211,12 @@ public class BankingSystem {
 	public static void reportA() {
 		System.out.println(":: DISPLAY REPORT A - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(
 					"SELECT id, name, gender, age, SUM(balance) AS TOTAL FROM p1.customer JOIN p1.account ON p1.customer.id = p1.account.id GROUP BY id ORDER BY TOTAL DESC;");
 			System.out.println(":: ACCOUNT SUMMARY - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: ACCOUNT SUMMARY - FAILED");
 			e.printStackTrace();
@@ -218,16 +232,16 @@ public class BankingSystem {
 	public static void reportB(String min, String max) {
 		System.out.println(":: REPORT B - RUNNING");
 		try {
+			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(
 					"SELECT AVG(balance) AS TOTAL FROM p1.customer JOIN p1.account ON p1.customer.id = p1.account.id WHERE p2.customer.age >= "
 							+ min + " AND p1.customer.age <= " + max + ";");
 			System.out.println(":: REPORT B - SUCCESS");
+			con.close();
 		} catch (Exception e) {
 			System.out.println(":: REPORT B - FAILED");
 			e.printStackTrace();
 		}
-
-		System.out.println(":: REPORT B - SUCCESS");
 	}
 }
