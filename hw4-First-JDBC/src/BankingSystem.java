@@ -94,7 +94,7 @@ public class BankingSystem {
 			// %s denotes a string concatenation which you can then combine with
 			// String.format which then replaces the concatenations with your
 			// desired replacements
-			stmt.executeUpdate(String.format(query, name, gender, age, pin)); // jdbc statement that executes insertion
+			stmt.executeUpdate(String.format(query, name, gender, age, pin)); // jdbc statement
 			stmt.close();
 			con.close();
 			System.out.println(":: CREATE NEW CUSTOMER - SUCCESS");
@@ -106,6 +106,13 @@ public class BankingSystem {
 		}
 	}
 
+	/**
+	 * Login function for use in CLI designed in p1.java
+	 * 
+	 * @param id The ID value to use in attempted login
+	 * @param pin The PIN value to use in attempted login
+	 * @return Boolean value for whether login was successful
+	 */
 	public static boolean login(String id, String pin) {
 		System.out.println(":: LOGIN - RUNNING");
 		try {
@@ -343,11 +350,10 @@ public class BankingSystem {
 	}
 
 	/**
-	 * Display Report A - Customer Information with Total Balance in Decreasing
-	 * Order.
+	 * Display Report A - Customer Information with total balance in decreasing  order.
 	 */
 	public static void reportA() {
-		System.out.println(":: DISPLAY REPORT A - RUNNING");
+		System.out.println(":: REPORT A - RUNNING");
 		try {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
@@ -388,8 +394,10 @@ public class BankingSystem {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT AVG(balance) AS TOTAL FROM p1.customer JOIN p1.account " +
-					"ON p1.customer.id = p1.account.id WHERE p1.customer.age >= %s AND p1.customer.age <= %s;";
+			String query = "SELECT AVG(TOTAL)  FROM (SELECT p1.customer.id, age, status, " +
+					"SUM(balance) as TOTAL FROM p1.customer JOIN p1.account ON p1.customer.id = p1.account.id " +
+					"GROUP BY p1.customer.id, age, status) " +
+					"WHERE age >= %s AND age <= %s AND status = 'A';";
 			rs = stmt.executeQuery(String.format(query, min, max));
 			System.out.println("AVERAGE     ");
 			System.out.println("----------- ");
@@ -608,8 +616,8 @@ public class BankingSystem {
 		}
 	}
 
-	// The following will be validity checks that have more to do with Java than
-	// JDBC-SQL
+	// The following will be validity checks that have more to do with Java compiling
+	// than JDBC-SQL
 
 	/**
 	 * Checks if an amount is a valid integer for use in Banking System
