@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.FormattableFlags;
 import java.util.Properties;
 
 /**
@@ -80,6 +79,14 @@ public class BankingSystem {
 	public static void newCustomer(String name, String gender, String age, String pin) {
 		System.out.println(":: CREATE NEW CUSTOMER - RUNNING");
 		try {
+			if (!nameIsValid(name))
+				throw new TailoredException("INVALID NAME");
+			if (!genderIsValid(gender))
+				throw new TailoredException("INVALID GENDER");
+			if (!ageIsValid(age))
+				throw new TailoredException("INVALID AGE");
+			if (!pinIsValid(pin))
+				throw new TailoredException("INVALID PIN");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
@@ -91,10 +98,45 @@ public class BankingSystem {
 			stmt.close();
 			con.close();
 			System.out.println(":: CREATE NEW CUSTOMER - SUCCESS");
+		} catch (TailoredException e) {
+			System.out.println("CREATE NEW CUSTOMER - ERROR - " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(":: CREATE NEW CUSTOMER - FAILED");
 			e.printStackTrace();
 		}
+	}
+
+	public static boolean login(String id, String pin) {
+		System.out.println(":: LOGIN - RUNNING");
+		try {
+			if (!idIsValid(id))
+				throw new TailoredException("INVALID ID");
+			if (!pinIsValid(pin))
+				throw new TailoredException("INVALID PIN");
+			if (!customerExists(id))
+				throw new TailoredException("CUSTOMER DOES NOT EXIST");
+			Class.forName(driver);
+			con = DriverManager.getConnection(url, username, password);
+			stmt = con.createStatement();
+			String query = "SELECT pin FROM p1.customer WHERE id = %s";
+			rs = stmt.executeQuery(String.format(query, id, pin));
+			rs.next();
+			int pinCode = rs.getInt(1);
+			rs.close();
+			stmt.close();
+			con.close();
+			if (Integer.parseInt(pin) != pinCode)
+				throw new TailoredException("INCORRECT CREDENTIALS");
+			System.out.println(":: LOGIN CUSTOMER - SUCCESS");
+			return true;
+
+		} catch (TailoredException e) {
+			System.out.println(":: LOGIN - ERROR - " + e.getMessage());
+		} catch (Exception e) {
+			System.out.println(":: LOGIN - FAILED");
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
@@ -107,6 +149,15 @@ public class BankingSystem {
 	public static void openAccount(String id, String type, String amount) {
 		System.out.println(":: OPEN ACCOUNT - RUNNING");
 		try {
+			if (!customerExists(id))
+				throw new TailoredException("CUSTOMER DOES NOT EXIST");
+			if (!idIsValid(id))
+				throw new TailoredException("INVALID CUSTOMER ID");
+			if (!typeIsValid(type))
+				throw new TailoredException("INVALID TYPE");
+			if (!amountIsValid(amount))
+				throw new TailoredException("INVALID AMOUNT");
+
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
@@ -115,6 +166,8 @@ public class BankingSystem {
 			System.out.println(":: OPEN ACCOUNT - SUCCESS");
 			stmt.close();
 			con.close();
+		} catch (TailoredException e) {
+			System.out.println(":: OPEN ACCOUNT - ERROR - " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(":: OPEN ACCOUNT - FAILED");
 			e.printStackTrace();
@@ -129,6 +182,12 @@ public class BankingSystem {
 	public static void closeAccount(String accNum) {
 		System.out.println(":: CLOSE ACCOUNT - RUNNING");
 		try {
+			if (!accountIsActive(accNum))
+				throw new TailoredException("ACCOUNT IS ALREADY CLOSED");
+			if (!accNumIsValid(accNum))
+				throw new TailoredException("INVALID ACCOUNT NUMBER");
+			if (!accountExists(accNum))
+				throw new TailoredException("ACCOUNT DOES NOT EXIST");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
@@ -137,6 +196,8 @@ public class BankingSystem {
 			System.out.println(":: CLOSE ACCOUNT - SUCCESS");
 			stmt.close();
 			con.close();
+		} catch (TailoredException e) {
+			System.out.println(":: CLOSE ACCOUNT - ERROR - " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(":: CLOSE ACCOUNT - FAILED");
 			e.printStackTrace();
@@ -152,6 +213,14 @@ public class BankingSystem {
 	public static void deposit(String accNum, String amount) {
 		System.out.println(":: DEPOSIT - RUNNING");
 		try {
+			if (!accNumIsValid(accNum))
+				throw new TailoredException("INVALID ACCOUNT NUMBER");
+			if (!amountIsValid(amount))
+				throw new TailoredException("INVALID AMOUNT");
+			if (!accountExists(accNum))
+				throw new TailoredException("ACCOUNT DOES NOT EXIST");
+			if (!accountIsActive(accNum))
+				throw new TailoredException("ACCOUNT IS INACTIVE");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
@@ -160,6 +229,8 @@ public class BankingSystem {
 			System.out.println(":: DEPOSIT - SUCCESS");
 			stmt.close();
 			con.close();
+		} catch (TailoredException e) {
+			System.out.println("DEPOSIT - ERROR - " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(":: DEPOSIT - FAILED");
 			e.printStackTrace();
@@ -175,9 +246,16 @@ public class BankingSystem {
 	public static void withdraw(String accNum, String amount) {
 		System.out.println(":: WITHDRAW - RUNNING");
 		try {
-			if (!BankingSystem.hasTheFunds(accNum, amount)) {
+			if (!accNumIsValid(accNum))
+				throw new TailoredException("INVALID ACCOUNT NUMBER");
+			if (!amountIsValid(amount))
+				throw new TailoredException("INVALID AMOUNT");
+			if (!accountExists(accNum))
+				throw new TailoredException("ACCOUNT DOES NOT EXIST");
+			if (!accountIsActive(accNum))
+				throw new TailoredException("ACCOUNT IS INACTIVE");
+			if (!hasTheFunds(accNum, amount))
 				throw new TailoredException("NOT ENOUGH FUNDS");
-			}
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
@@ -204,9 +282,21 @@ public class BankingSystem {
 	public static void transfer(String srcAccNum, String destAccNum, String amount) {
 		System.out.println(":: TRANSFER - RUNNING");
 		try {
+			if (!accNumIsValid(srcAccNum) || !accNumIsValid(destAccNum))
+				throw new TailoredException("INVALID ACCOUNT NUMBER");
+			if (!amountIsValid(amount))
+				throw new TailoredException("INVALID AMOUNT");
+			if (!accountExists(srcAccNum) || !accountExists(destAccNum))
+				throw new TailoredException("ACCOUNT DOES NOT EXIST");
+			if (!accountIsActive(srcAccNum) || !accountIsActive(destAccNum))
+				throw new TailoredException("ACCOUNT IS INACTIVE");
+			if (!hasTheFunds(srcAccNum, amount))
+				throw new TailoredException("NOT ENOUGH FUNDS");
 			BankingSystem.withdraw(srcAccNum, amount);
 			BankingSystem.deposit(destAccNum, amount);
 			System.out.println(":: TRANSFER - SUCCESS");
+		} catch (TailoredException e) {
+			System.out.print(":: TRANSFER - ERROR - " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(":: TRANSFER - FAILED");
 			e.printStackTrace();
@@ -221,18 +311,31 @@ public class BankingSystem {
 	public static void accountSummary(String cusID) {
 		System.out.println(":: ACCOUNT SUMMARY - RUNNING");
 		try {
+			if (!idIsValid(cusID))
+				throw new TailoredException("INVALID CUSTOMER ID");
+			if (!customerExists(cusID))
+				throw new TailoredException("CUSTOMER DOES NOT EXIST");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
 			String query = "SELECT number, balance FROM p1.account WHERE id = %s AND status = 'A';";
 			rs = stmt.executeQuery(String.format(query, cusID));
-			stmt = con.createStatement();
-			query = "SELECT SUM(balance) AS total FROM p1.account WHERE id = %s AND status = 'A';";
-			rs = stmt.executeQuery(String.format(query, cusID));
-
+			int total = 0;
+			System.out.println("NUMBER      BALANCE     ");
+			System.out.println("----------- ----------- ");
+			while (rs.next()) {
+				int number = rs.getInt(1);
+				int balance = rs.getInt(2);
+				total += balance;
+				System.out.printf("%11d %11d \n", number, balance);
+			}
+			System.out.println("----------- ----------- ");
+			System.out.printf("TOTAL       %11d \n", total);
 			System.out.println(":: ACCOUNT SUMMARY - SUCCESS");
 			stmt.close();
 			con.close();
+		} catch (TailoredException e) {
+			System.out.println(":: ACCOUNT SUMMARY - ERROR - " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(":: ACCOUNT SUMMARY - FAILED");
 			e.printStackTrace();
@@ -253,6 +356,16 @@ public class BankingSystem {
 					"FROM p1.customer JOIN p1.account ON p1.customer.id = p1.account.id AND p1.account.status = 'A' " +
 					"GROUP BY p1.customer.id, name, gender, age ORDER BY TOTAL DESC;";
 			rs = stmt.executeQuery(query);
+			System.out.println("ID          NAME            GENDER AGE         TOTAL       ");
+			System.out.println("----------- --------------- ------ ----------- ----------- ");
+			while (rs.next()) {
+				int id = rs.getInt(1);
+				String name = rs.getString(2);
+				String gender = rs.getString(3);
+				int age = rs.getInt(4);
+				int total = rs.getInt(5);
+				System.out.printf("%11d %15s %6s %11d %11d \n", id, name, gender, age, total);
+			}
 			System.out.println(":: REPORT A - SUCCESS");
 			rs.close();
 			stmt.close();
@@ -278,6 +391,11 @@ public class BankingSystem {
 			String query = "SELECT AVG(balance) AS TOTAL FROM p1.customer JOIN p1.account " +
 					"ON p1.customer.id = p1.account.id WHERE p1.customer.age >= %s AND p1.customer.age <= %s;";
 			rs = stmt.executeQuery(String.format(query, min, max));
+			System.out.println("AVERAGE     ");
+			System.out.println("----------- ");
+			rs.next();
+			int average = rs.getInt(1);
+			System.out.printf("%11d \n", average);
 			System.out.println(":: REPORT B - SUCCESS");
 			rs.close();
 			stmt.close();
@@ -413,7 +531,10 @@ public class BankingSystem {
 			String query = "SELECT number FROM p1.account WHERE number = %s";
 			rs = stmt.executeQuery(String.format(query, accNum));
 			rs.next();
-			int number = rs.getInt(1);
+			int retreivedNum = rs.getInt(1);
+			if (Integer.parseInt(accNum) == retreivedNum) {
+				return true;
+			}
 			rs.close();
 			stmt.close();
 			con.close();
