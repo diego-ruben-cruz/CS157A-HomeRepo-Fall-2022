@@ -9,15 +9,15 @@ import java.util.Scanner;
  * Course: CS 157A
  * Section: 02
  * Homework: proj01
- * Date: 13 November 2022
+ * Date: 05 December 2022
  * 
  * To run:
  * 
  * Run directory cmd: javac *.java
  * 
- * Run container command: db2 -tvf p1_create.sql
+ * Run container command: db2 -tvf p2_create.sql
  * 
- * Run directory cmd: java -cp ";./db2jcc4.jar" p1 ./db.properties
+ * Run directory cmd: java -cp ";./db2jcc4.jar" p2 ./db.properties
  */
 public class p2 {
     private static Scanner inputScanner;

@@ -6,8 +6,8 @@
  * 
  * Course: CS 157A
  * Section: 02
- * Homework: proj01
- * Date: 13 November 2022
+ * Homework: proj02
+ * Date: 05 December 2022
  */
 
 import java.io.FileInputStream;
