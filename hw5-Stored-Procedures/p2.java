@@ -87,6 +87,7 @@ public class p2 {
             System.out.println("Admin Panel Activated");
             adminSession();
         } else if (BankingSystem.login(id, PIN)) {
+            System.out.println("Your user ID is: " + idNum);
             idNum = id;
             customerSession();
         }
