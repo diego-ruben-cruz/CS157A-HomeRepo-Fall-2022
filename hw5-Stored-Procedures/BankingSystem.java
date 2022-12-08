@@ -8,13 +8,18 @@
  * Section: 02
  * Homework: proj02
  * Date: 05 December 2022
+ * 
+ * To Run: refer to instructions on p2.java file header
  */
 
 import java.io.FileInputStream;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.Properties;
 
 /**
@@ -89,16 +94,26 @@ public class BankingSystem {
 				throw new TailoredException("INVALID PIN");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
-			stmt = con.createStatement();
-			String query = ("P2.CUST_CRT('%s', '%s', %s, %s, ?, ?, ?)");
-			// %s denotes a string concatenation which you can then combine with
-			// String.format which then replaces the concatenations with your
-			// desired replacements
-			stmt.executeUpdate(String.format(query, name, gender, age, pin)); // jdbc statement
+
+			String callCusCreate = "{CALL P2.CUST_CRT(?, ?, ?, ?, ?, ?, ?)}";
+			CallableStatement stmt = con.prepareCall(callCusCreate);
+			stmt.setString(1, name);
+			stmt.setString(2, gender);
+			stmt.setInt(3, Integer.parseInt(age));
+			stmt.setInt(4, Integer.parseInt(pin));
+			stmt.registerOutParameter(5, Types.INTEGER);
+			stmt.registerOutParameter(6, Types.INTEGER);
+			stmt.registerOutParameter(7, Types.CHAR);
+			stmt.execute();
+			int idFetch = stmt.getInt(5);
+
 			stmt.close();
 			con.close();
 			System.out.println(":: CREATE NEW CUSTOMER - SUCCESS");
+			System.out.println("Your ID is: " + idFetch);
 		} catch (TailoredException e) {
+			System.out.println("CREATE NEW CUSTOMER - ERROR - " + e.getMessage());
+		} catch (SQLException e) {
 			System.out.println("CREATE NEW CUSTOMER - ERROR - " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(":: CREATE NEW CUSTOMER - FAILED");
@@ -107,9 +122,9 @@ public class BankingSystem {
 	}
 
 	/**
-	 * Login function for use in CLI designed in p1.java
+	 * Login function for use in CLI designed in p2.java
 	 * 
-	 * @param id The ID value to use in attempted login
+	 * @param id  The ID value to use in attempted login
 	 * @param pin The PIN value to use in attempted login
 	 * @return Boolean value for whether login was successful
 	 */
@@ -124,12 +139,17 @@ public class BankingSystem {
 				throw new TailoredException("CUSTOMER DOES NOT EXIST");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
-			stmt = con.createStatement();
-			String query = "CALL P2.CUST_LOGIN( %s, %s, ?, ?, ?)";
-			rs = stmt.executeQuery(String.format(query, id, pin));
-			rs.next();
-			boolean pinValid = rs.getInt(1) == 1;
-			rs.close();
+
+			String callLogin = "{CALL P2.CUST_LOGIN( ?, ?, ?, ?, ?)}";
+			CallableStatement stmt = con.prepareCall(callLogin);
+			stmt.setInt(1, Integer.parseInt(id));
+			stmt.setInt(2, Integer.parseInt(pin));
+			stmt.registerOutParameter(3, Types.INTEGER);
+			stmt.registerOutParameter(4, Types.INTEGER);
+			stmt.registerOutParameter(5, Types.CHAR);
+			stmt.execute();
+
+			boolean pinValid = stmt.getInt(3) == 1;
 			stmt.close();
 			con.close();
 			if (!pinValid)
@@ -153,8 +173,9 @@ public class BankingSystem {
 	 * @param type   type of account
 	 * @param amount initial deposit amount
 	 */
-	public static void openAccount(String id, String type, String amount) {
+	public static int openAccount(String id, String type, String amount) {
 		System.out.println(":: OPEN ACCOUNT - RUNNING");
+		int fetchAccNum = 0;
 		try {
 			if (!customerExists(id))
 				throw new TailoredException("CUSTOMER DOES NOT EXIST");
@@ -168,9 +189,21 @@ public class BankingSystem {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "P2.ACCT_OPEN( %s, %s, '%s', ?, ?, ?)";
-			stmt.executeQuery(String.format(query, id, amount, type));
+
+			String callAccOpen = "{CALL P2.ACCT_OPN( ?, ?, ?, ?, ?, ?)}";
+			CallableStatement stmt = con.prepareCall(callAccOpen);
+			stmt.setInt(1, Integer.parseInt(id));
+			stmt.setInt(2, Integer.parseInt(amount));
+			stmt.setString(3, type);
+			stmt.registerOutParameter(4, Types.INTEGER);
+			stmt.registerOutParameter(5, Types.INTEGER);
+			stmt.registerOutParameter(6, Types.CHAR);
+			stmt.execute();
+			fetchAccNum = stmt.getInt(4);
+
 			System.out.println(":: OPEN ACCOUNT - SUCCESS");
+			System.out.println("Your new account number is " + fetchAccNum);
+
 			stmt.close();
 			con.close();
 		} catch (TailoredException e) {
@@ -179,6 +212,7 @@ public class BankingSystem {
 			System.out.println(":: OPEN ACCOUNT - FAILED");
 			e.printStackTrace();
 		}
+		return fetchAccNum;
 	}
 
 	/**
@@ -197,10 +231,15 @@ public class BankingSystem {
 				throw new TailoredException("ACCOUNT DOES NOT EXIST");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
-			stmt = con.createStatement();
-			String query = "CALL P2.ACCT_CLS(%s, ?, ?)";
-			stmt.executeQuery(String.format(query, accNum));
+
+			String callAccClose = "{CALL P2.ACCT_CLS(?, ?, ?)}";
+			CallableStatement stmt = con.prepareCall(callAccClose);
+			stmt.setInt(1, Integer.parseInt(accNum));
+			stmt.registerOutParameter(2, Types.INTEGER);
+			stmt.registerOutParameter(3, Types.CHAR);
+			stmt.execute();
 			System.out.println(":: CLOSE ACCOUNT - SUCCESS");
+
 			stmt.close();
 			con.close();
 		} catch (TailoredException e) {
@@ -230,10 +269,16 @@ public class BankingSystem {
 				throw new TailoredException("ACCOUNT IS INACTIVE");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
-			stmt = con.createStatement();
-			String query = "CALL P2.ACCT_DEP(%s, %s, ?, ?)";
-			stmt.execute(String.format(query, accNum, amount));
+
+			String callDeposit = "{CALL P2.ACCT_DEP(?, ?, ?, ?)}";
+			CallableStatement stmt = con.prepareCall(callDeposit);
+			stmt.setInt(1, Integer.parseInt(accNum));
+			stmt.setInt(2, Integer.parseInt(amount));
+			stmt.registerOutParameter(3, Types.INTEGER);
+			stmt.registerOutParameter(4, Types.CHAR);
+			stmt.execute();
 			System.out.println(":: DEPOSIT - SUCCESS");
+
 			stmt.close();
 			con.close();
 		} catch (TailoredException e) {
@@ -265,10 +310,16 @@ public class BankingSystem {
 				throw new TailoredException("NOT ENOUGH FUNDS");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
-			stmt = con.createStatement();
-			String query = "CALL P2.ACCT_WTH(%s, %s, ?, ?)";
-			stmt.executeQuery(String.format(query, accNum, amount));
+
+			String callWithdraw = "{CALL P2.ACCT_WTH(?, ?, ?, ?)}";
+			CallableStatement stmt = con.prepareCall(callWithdraw);
+			stmt.setInt(1, Integer.parseInt(accNum));
+			stmt.setInt(2, Integer.parseInt(amount));
+			stmt.registerOutParameter(3, Types.INTEGER);
+			stmt.registerOutParameter(4, Types.CHAR);
+			stmt.execute();
 			System.out.println(":: WITHDRAW - SUCCESS");
+
 			stmt.close();
 			con.close();
 		} catch (TailoredException e) {
@@ -290,21 +341,27 @@ public class BankingSystem {
 		System.out.println(":: TRANSFER - RUNNING");
 		try {
 			if (!accNumIsValid(srcAccNum) || !accNumIsValid(destAccNum))
-				throw new TailoredException("INVALID ACCOUNT NUMBER");
+				throw new TailoredException("SRC OR DEST ACCOUNT NUMBER INVALID");
 			if (!amountIsValid(amount))
 				throw new TailoredException("INVALID AMOUNT");
 			if (!accountExists(srcAccNum) || !accountExists(destAccNum))
-				throw new TailoredException("ACCOUNT DOES NOT EXIST");
+				throw new TailoredException("SRC OR DEST ACCOUNT DOES NOT EXIST");
 			if (!accountIsActive(srcAccNum) || !accountIsActive(destAccNum))
-				throw new TailoredException("ACCOUNT IS INACTIVE");
+				throw new TailoredException("SRC OR DEST ACCOUNT IS INACTIVE");
 			if (!hasTheFunds(srcAccNum, amount))
 				throw new TailoredException("NOT ENOUGH FUNDS");
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
-			stmt = con.createStatement();
-			String query = "CALL P2.ACCT_TRX(%s, %s, %s, ?, ?)";
-			stmt.executeQuery(String.format(query, srcAccNum, destAccNum, amount));
-			System.out.println(":: WITHDRAW - SUCCESS");
+
+			String callTransfer = "{CALL P2.ACCT_TRX(?, ?, ?, ?, ?)}";
+			CallableStatement stmt = con.prepareCall(callTransfer);
+			stmt.setInt(1, Integer.parseInt(srcAccNum));
+			stmt.setInt(2, Integer.parseInt(destAccNum));
+			stmt.setInt(3, Integer.parseInt(amount));
+			stmt.registerOutParameter(4, Types.INTEGER);
+			stmt.registerOutParameter(5, Types.CHAR);
+			stmt.execute();
+
 			stmt.close();
 			con.close();
 			System.out.println(":: TRANSFER - SUCCESS");
@@ -331,7 +388,7 @@ public class BankingSystem {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT number, balance FROM p1.account WHERE id = %s AND status = 'A';";
+			String query = "SELECT number, balance FROM p2.account WHERE id = %s AND status = 'A';";
 			rs = stmt.executeQuery(String.format(query, cusID));
 			int total = 0;
 			System.out.println("NUMBER      BALANCE     ");
@@ -356,7 +413,8 @@ public class BankingSystem {
 	}
 
 	/**
-	 * Display Report A - Customer Information with total balance in decreasing  order.
+	 * Display Report A - Customer Information with total balance in decreasing
+	 * order.
 	 */
 	public static void reportA() {
 		System.out.println(":: REPORT A - RUNNING");
@@ -364,9 +422,9 @@ public class BankingSystem {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT p1.customer.id, name, gender, age, SUM(balance) AS TOTAL " +
-					"FROM p1.customer JOIN p1.account ON p1.customer.id = p1.account.id AND p1.account.status = 'A' " +
-					"GROUP BY p1.customer.id, name, gender, age ORDER BY TOTAL DESC;";
+			String query = "SELECT p2.customer.id, name, gender, age, SUM(balance) AS TOTAL " +
+					"FROM p2.customer JOIN p2.account ON p2.customer.id = p2.account.id AND p2.account.status = 'A' " +
+					"GROUP BY p2.customer.id, name, gender, age ORDER BY TOTAL DESC;";
 			rs = stmt.executeQuery(query);
 			System.out.println("ID          NAME            GENDER AGE         TOTAL       ");
 			System.out.println("----------- --------------- ------ ----------- ----------- ");
@@ -400,9 +458,9 @@ public class BankingSystem {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT AVG(TOTAL)  FROM (SELECT p1.customer.id, age, status, " +
-					"SUM(balance) as TOTAL FROM p1.customer JOIN p1.account ON p1.customer.id = p1.account.id " +
-					"GROUP BY p1.customer.id, age, status) " +
+			String query = "SELECT AVG(TOTAL)  FROM (SELECT p2.customer.id, age, status, " +
+					"SUM(balance) as TOTAL FROM p2.customer JOIN p2.account ON p2.customer.id = p2.account.id " +
+					"GROUP BY p2.customer.id, age, status) " +
 					"WHERE age >= %s AND age <= %s AND status = 'A';";
 			rs = stmt.executeQuery(String.format(query, min, max));
 			System.out.println("AVERAGE     ");
@@ -440,7 +498,7 @@ public class BankingSystem {
 		}
 	}
 
-	// The following will be validity checks for the p1.customer relation
+	// The following will be validity checks for the p2.customer relation
 
 	/**
 	 * Checks if the customer exists using an id
@@ -452,7 +510,7 @@ public class BankingSystem {
 		try {
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT id FROM p1.customer WHERE id = %s";
+			String query = "SELECT id FROM p2.customer WHERE id = %s";
 			rs = stmt.executeQuery(String.format(query, id));
 			rs.next();
 			int retrievedID = rs.getInt(1);
@@ -530,7 +588,7 @@ public class BankingSystem {
 		}
 	}
 
-	// The following will be validity checks for the p1.account relation
+	// The following will be validity checks for the p2.account relation
 
 	/**
 	 * Checks if the account exists regardless of activity
@@ -542,7 +600,7 @@ public class BankingSystem {
 		try {
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT number FROM p1.account WHERE number = %s";
+			String query = "SELECT number FROM p2.account WHERE number = %s";
 			rs = stmt.executeQuery(String.format(query, accNum));
 			rs.next();
 			int retreivedNum = rs.getInt(1);
@@ -569,7 +627,7 @@ public class BankingSystem {
 		try {
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT balance from p1.account WHERE number = %s";
+			String query = "SELECT balance from p2.account WHERE number = %s";
 			rs = stmt.executeQuery(String.format(query, accNum));
 			rs.next();
 			int currentBalance = rs.getInt(1);
@@ -609,7 +667,7 @@ public class BankingSystem {
 		try {
 			con = DriverManager.getConnection(url, username, password);
 			stmt = con.createStatement();
-			String query = "SELECT status FROM p1.account WHERE number = %s AND status = 'A'";
+			String query = "SELECT status FROM p2.account WHERE number = %s AND status = 'A'";
 			rs = stmt.executeQuery(String.format(query, accNum));
 			rs.next();
 			String status = rs.getString(1);
@@ -622,7 +680,8 @@ public class BankingSystem {
 		}
 	}
 
-	// The following will be validity checks that have more to do with Java compiling
+	// The following will be validity checks that have more to do with Java
+	// compiling
 	// than JDBC-SQL
 
 	/**

@@ -55,7 +55,7 @@ BEGIN
 END @
 
 CREATE PROCEDURE P2.CUST_LOGIN
-  (IN input_id INTEGER, IN input_pin INTEGER, OUT valid INTEGER, OUT sql_code INTEGER, OUT err_msg VARCHAR(100))
+  (IN input_id INTEGER, IN input_pin INTEGER, OUT valid INTEGER, OUT sql_code INTEGER, OUT err_msg CHAR(100))
   LANGUAGE SQL
     BEGIN
       DECLARE pin_extract INTEGER;
@@ -103,11 +103,12 @@ CREATE PROCEDURE P2.ACCT_OPN
 END@
 
 CREATE PROCEDURE P2.ACCT_CLS
-  (IN input_accNum INTEGER, OUT sql_code INTEGER, OUT err_msg VARCHAR(100))
+  (IN input_accNum INTEGER, OUT sql_code INTEGER, OUT err_msg CHAR(100))
   LANGUAGE SQL
     BEGIN
       IF input_accNum IN (SELECT Number FROM p2.account) THEN
         UPDATE p2.account SET p2.account.Status = 'I' WHERE p2.account.Number = input_accNum;
+        UPDATE p2.account SET p2.account.Balance = 0 WHERE p2.account.Number = input_accNum;
         SET sql_code = 0;
         SET err_msg = 'Account Closure Successful';
       ELSEIF input_accNum IN (SELECT Number FROM p2.account WHERE p2.account.Status = 'I') THEN
@@ -120,7 +121,7 @@ CREATE PROCEDURE P2.ACCT_CLS
 END@
 
 CREATE PROCEDURE P2.ACCT_DEP
-  (IN input_accNum INTEGER, IN input_amount INTEGER, OUT sql_code INTEGER, OUT err_msg VARCHAR(100))
+  (IN input_accNum INTEGER, IN input_amount INTEGER, OUT sql_code INTEGER, OUT err_msg CHAR(100))
   LANGUAGE SQL
     BEGIN
       IF input_accNum IN (SELECT Number FROM p2.account WHERE p2.account.Status = 'A') AND input_amount >= 0 THEN
@@ -140,7 +141,7 @@ CREATE PROCEDURE P2.ACCT_DEP
 END@
 
 CREATE PROCEDURE P2.ACCT_WTH
-  (IN input_accNum INTEGER, IN withdraw_amount INTEGER, OUT sql_code INTEGER, OUT err_msg VARCHAR(100))
+  (IN input_accNum INTEGER, IN withdraw_amount INTEGER, OUT sql_code INTEGER, OUT err_msg CHAR(100))
   LANGUAGE SQL
     BEGIN
       IF input_accNum IN (SELECT Number FROM p2.account WHERE p2.account.Status = 'A') AND withdraw_amount >= 0 THEN
@@ -165,7 +166,7 @@ CREATE PROCEDURE P2.ACCT_WTH
 END@
 
 CREATE PROCEDURE P2.ACCT_TRX
-  (IN src_accNum INTEGER, IN dest_accNum INTEGER, IN amount INTEGER, OUT sql_code INTEGER, OUT err_msg VARCHAR(100))
+  (IN src_accNum INTEGER, IN dest_accNum INTEGER, IN amount INTEGER, OUT sql_code INTEGER, OUT err_msg CHAR(100))
   LANGUAGE SQL
     BEGIN
       IF src_accNum IN (SELECT Number FROM p2.account) AND dest_accNum IN (SELECT Number FROM p2.account) THEN
@@ -185,11 +186,11 @@ CREATE PROCEDURE P2.ACCT_TRX
 END@
 
 CREATE PROCEDURE P2.ADD_INTEREST
-  (IN savings_rate FLOAT, IN checking_rate FLOAT, OUT sql_code INTEGER, OUT err_msg VARCHAR(100))
+  (IN savings_rate FLOAT, IN checking_rate FLOAT, OUT sql_code INTEGER, OUT err_msg CHAR(100))
   LANGUAGE SQL
     BEGIN
-      UPDATE p2.account SET Balance = ROUND((1 + checking_rate) * Balance) WHERE Type = 'C';
-      UPDATE p2.account SET Balance = ROUND((1 + savings_rate) * Balance) WHERE Type = 'S';
+      UPDATE p2.account SET Balance = ROUND((1 + checking_rate) * Balance) WHERE Type = 'C' AND Status = 'A';
+      UPDATE p2.account SET Balance = ROUND((1 + savings_rate) * Balance) WHERE Type = 'S' AND Status = 'A';
       SET sql_code = 0;
       SET err_msg = 'Interest Addition Successful';
 END@

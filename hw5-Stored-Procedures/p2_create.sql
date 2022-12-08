@@ -1,4 +1,16 @@
 -- Project 2 DDLs: create.clp
+-- Useful db2 command to run this file:
+-- db2 -tvf p2_create.sql
+
+-- to run simple
+-- db2 -td";" -f p2_create.sql
+
+-- to run play by play
+-- db2 -vtd";" -f p2_create.sql
+    -- td"@" denotes that "@" character is considered equivalent to ";"
+    -- for statements outside of triggers
+    -- For normal files that use ";" delimiter, 
+    -- use db2 -tvf file_name_here.sql
 --
 connect to cs157a;
 --

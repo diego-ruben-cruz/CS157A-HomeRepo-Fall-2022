@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /*
@@ -11,18 +12,18 @@ import java.util.Scanner;
  * Homework: proj01
  * Date: 05 December 2022
  * 
- * To run:
- * 
+ * To Run:
  * Run directory cmd: javac *.java
  * 
  * Run container command: db2 -tvf p2_create.sql
+ * Run container command: db2 -td"@" -f p2.sql
  * 
  * Run directory cmd: java -cp ";./db2jcc4.jar" p2 ./db.properties
  */
 public class p2 {
     private static Scanner inputScanner;
     private static String idNum;
-    private static String accNum;
+    private static ArrayList<String> accountList = new ArrayList<String>();
 
     public static void main(String[] args) {
         System.out.println(":: PROGRAM START");
@@ -87,8 +88,8 @@ public class p2 {
             System.out.println("Admin Panel Activated");
             adminSession();
         } else if (BankingSystem.login(id, PIN)) {
-            System.out.println("Your user ID is: " + idNum);
             idNum = id;
+            System.out.println("Reminder: Your user ID is " + idNum);
             customerSession();
         }
     }
@@ -162,7 +163,9 @@ public class p2 {
         String type = inputScanner.next();
         System.out.print("Enter the initial amount in your account: ");
         String amount = inputScanner.next();
-        BankingSystem.openAccount(idNum, type, amount);
+        int outputAccNum = BankingSystem.openAccount(idNum, type, amount);
+        accountList.add(Integer.toString(outputAccNum));
+
     }
 
     /**
@@ -170,8 +173,12 @@ public class p2 {
      */
     private static void closeAccount() {
         System.out.print("\nEnter the account number you want to close: ");
-        String accNum = inputScanner.next();
-        BankingSystem.closeAccount(accNum);
+        String inputAccNum = inputScanner.next();
+        if (accountList.contains(inputAccNum)) {
+            BankingSystem.closeAccount(inputAccNum);
+        } else {
+            System.out.println("Error: this account does not belong to the user currently logged in");
+        }
 
     }
 
@@ -180,11 +187,14 @@ public class p2 {
      */
     private static void deposit() {
         System.out.print("\nEnter the account number you want to deposit to: ");
-        String accNum = inputScanner.next();
-        System.out.print("Enter the amount you want to deposit: ");
-        String amount = inputScanner.next();
-        BankingSystem.deposit(accNum, amount);
-
+        String inputAccNum = inputScanner.next();
+        if (accountList.contains(inputAccNum)) {
+            System.out.print("Enter the amount you want to deposit: ");
+            String amount = inputScanner.next();
+            BankingSystem.deposit(inputAccNum, amount);
+        } else {
+            System.out.println("Error: this account does not belong to the user currently logged in");
+        }
     }
 
     /**
@@ -192,10 +202,14 @@ public class p2 {
      */
     private static void withdraw() {
         System.out.print("\nEnter the account number you want to withdraw from: ");
-        accNum = inputScanner.next();
-        System.out.print("Enter the amount you want to withdraw: ");
-        String amount = inputScanner.next();
-        BankingSystem.withdraw(accNum, amount);
+        String inputAccNum = inputScanner.next();
+        if (accountList.contains(inputAccNum)) {
+            System.out.print("Enter the amount you want to withdraw: ");
+            String amount = inputScanner.next();
+            BankingSystem.withdraw(inputAccNum, amount);
+        } else {
+            System.out.println("Error: this account does not belong to the user currently logged in");
+        }
     }
 
     /**
@@ -204,11 +218,16 @@ public class p2 {
     private static void transfer() {
         System.out.print("\nEnter the account number you want to transfer from: ");
         String srcAccNum = inputScanner.next();
-        System.out.print("Enter the account number you want to transfer to: ");
-        String destAccNum = inputScanner.next();
-        System.out.print("enter the amount you want to transfer: ");
-        String amount = inputScanner.next();
-        BankingSystem.transfer(srcAccNum, destAccNum, amount);
+        if (accountList.contains(srcAccNum)) {
+            System.out.print("Enter the account number you want to transfer to: ");
+            String destAccNum = inputScanner.next();
+            System.out.print("enter the amount you want to transfer: ");
+            String amount = inputScanner.next();
+            BankingSystem.transfer(srcAccNum, destAccNum, amount);
+        } else {
+            System.out.println("Error: this account does not belong to the user currently logged in");
+        }
+
     }
 
     /**
